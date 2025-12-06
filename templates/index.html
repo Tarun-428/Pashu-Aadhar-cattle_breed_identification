@@ -1,0 +1,216 @@
+{% extends "base.html" %} {% block title %}Home - Cattle Breed Identification{%
+endblock %} {% block content %}
+<!-- Hero Section -->
+<section class="hero-section bg-gradient-success text-white py-5">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6">
+        <h1 class="display-4 fw-bold mb-4">
+          <i class="fas fa-cow me-3"></i>
+          Cattle Breed Identification
+        </h1>
+        <p class="lead mb-4">
+          Discover and identify cattle breeds using advanced AI technology.
+          Upload a photo or use your camera to instantly identify cattle breeds
+          with detailed information and characteristics.
+        </p>
+        <div class="d-grid gap-2 d-md-flex">
+          <a
+            href="{{ url_for('identify') }}"
+            class="btn btn-light btn-lg me-md-2"
+          >
+            <i class="fas fa-camera me-2"></i>Identify Breed
+          </a>
+          <a href="#breeds" class="btn btn-outline-light btn-lg">
+            <i class="fas fa-list me-2"></i>Browse Breeds
+          </a>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="text-center">
+          <i class="fas fa-cow hero-icon"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+  <div class="container">
+    <div class="row text-center mb-5">
+      <div class="col-12">
+        <h2 class="fw-bold mb-3">Key Features</h2>
+        <p class="lead text-muted">
+          Advanced AI technology for accurate cattle breed identification
+        </p>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0">
+          <div class="card-body text-center">
+            <div class="feature-icon bg-success text-white rounded-circle mb-3">
+              <i class="fas fa-brain"></i>
+            </div>
+            <h5 class="card-title">AI-Powered Recognition</h5>
+            <p class="card-text">
+              Advanced machine learning algorithms trained on thousands of
+              cattle images for accurate breed identification.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0">
+          <div class="card-body text-center">
+            <div class="feature-icon bg-primary text-white rounded-circle mb-3">
+              <i class="fas fa-camera"></i>
+            </div>
+            <h5 class="card-title">Camera Integration</h5>
+            <p class="card-text">
+              Take photos directly with your device camera or upload existing
+              images for instant breed identification.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0">
+          <div class="card-body text-center">
+            <div class="feature-icon bg-info text-white rounded-circle mb-3">
+              <i class="fas fa-database"></i>
+            </div>
+            <h5 class="card-title">Comprehensive Database</h5>
+            <p class="card-text">
+              Detailed information about cattle breeds including
+              characteristics, origins, and livestock management data.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Breeds Section -->
+<section id="breeds" class="py-5 bg-light">
+  <div class="container">
+    <div class="row text-center mb-5">
+      <div class="col-12">
+        <h2 class="fw-bold mb-3">Cattle Breeds Database</h2>
+        <p class="lead text-muted">
+          Explore our comprehensive collection of cattle breed information
+        </p>
+      </div>
+    </div>
+
+    {% if breeds %}
+    <div class="row g-4">
+      {% for breed in breeds %}
+      <div class="col-lg-4 col-md-6">
+        <div class="card h-100 shadow-sm breed-card">
+          {% if breed.image_url %}
+          <img
+            src="{{ breed.image_url }}"
+            class="card-img-top breed-image"
+            alt="{{ breed.name }}"
+          />
+          {% else %}
+          <div
+            class="card-img-top bg-light d-flex align-items-center justify-content-center breed-image"
+          >
+            <i class="fas fa-cow text-muted fa-3x"></i>
+          </div>
+          {% endif %}
+
+          <div class="card-body">
+            <h5 class="card-title text-success fw-bold">{{ breed.name }}</h5>
+            {% if breed.scientific_name %}
+            <p class="text-muted small mb-2">
+              <em>{{ breed.scientific_name }}</em>
+            </p>
+            {% endif %}
+
+            <div class="breed-info mb-3">
+              {% if breed.origin %}
+              <span class="badge bg-secondary me-1">
+                <i class="fas fa-map-marker-alt me-1"></i>{{ breed.origin }}
+              </span>
+              {% endif %} {% if breed.category %}
+              <span class="badge bg-primary me-1">{{ breed.category }}</span>
+              {% endif %}
+            </div>
+
+            {% if breed.description %}
+            <p class="card-text">
+              {{ breed.description[:100] }}{% if breed.description|length > 100
+              %}...{% endif %}
+            </p>
+            {% endif %}
+
+            <div class="breed-stats">
+              {% if breed.milk_production %}
+              <small class="text-muted d-block">
+                <i class="fas fa-tint me-1"></i>Milk: {{ breed.milk_production
+                }} L/day
+              </small>
+              {% endif %} {% if breed.average_weight_female %}
+              <small class="text-muted d-block">
+                <i class="fas fa-weight me-1"></i>Weight: {{
+                breed.average_weight_female }} kg (female)
+              </small>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="card-footer bg-transparent">
+            <a
+              href="{{ url_for('breed_details', breed_id=breed.id) }}"
+              class="btn btn-outline-success btn-sm w-100"
+            >
+              <i class="fas fa-info-circle me-2"></i>View Details
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="row">
+      <div class="col-12">
+        <div class="alert alert-info text-center">
+          <i class="fas fa-info-circle fa-2x mb-3"></i>
+          <h4>No Breed Data Available</h4>
+          <p class="mb-0">
+            The cattle breeds database is currently empty. Please add breed data
+            to display here.
+          </p>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 bg-success text-white">
+  <div class="container">
+    <div class="row text-center">
+      <div class="col-12">
+        <h2 class="fw-bold mb-3">Ready to Identify Your Cattle?</h2>
+        <p class="lead mb-4">
+          Upload a photo or use your camera to get instant breed identification
+          with detailed information and confidence scores.
+        </p>
+        <a href="{{ url_for('identify') }}" class="btn btn-light btn-lg">
+          <i class="fas fa-camera me-2"></i>Start Identification
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

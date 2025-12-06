@@ -1,0 +1,89 @@
+# =====================================
+# Python and Deep Learning Projects
+# =====================================
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+.ipynb_checkpoints
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+*.cover
+*.py,cover
+.cache
+nosetests.xml
+coverage.xml
+*.log
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Environment variables
+.env
+.env.*
+*.env
+
+# VSCode / IDE files
+.vscode/
+.idea/
+*.swp
+
+# Data, models, and checkpoints
+data/
+datasets/
+*.h5
+*.hdf5
+*.ckpt
+*.pt
+*.pth
+*.tflite
+*.onnx
+*.weights
+
+# Large model files (ignore)
+resnet50_model.h5
+
+# Temporary files
+*.tmp
+*.bak
+*.old
+*.out
+*.log
+
+# Mac / Windows system files
+.DS_Store
+Thumbs.db
+
+resnet50_model.h5

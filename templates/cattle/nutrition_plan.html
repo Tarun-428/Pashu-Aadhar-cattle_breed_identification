@@ -1,0 +1,380 @@
+{% extends "base.html" %} {% block title %}Nutrition Plan - {{ cattle.name or
+cattle.cattle_id }}{% endblock %} {% block content %}
+<div class="container py-4">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12 text-center">
+      <h1 class="display-6 fw-bold text-success">
+        <i class="fas fa-utensils me-3"></i>7-Day Nutrition Plan
+      </h1>
+      <p class="lead text-muted">
+        Customized feeding schedule for {{ cattle.name or 'your cattle' }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Cattle & Plan Overview -->
+  <div class="row mb-4">
+    <div class="col-lg-4">
+      <div class="card shadow border-0">
+        <div class="card-header bg-info text-white">
+          <h5 class="mb-0">
+            <i class="fas fa-cow me-2"></i>Cattle Information
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="text-center mb-3">
+            {% if cattle.front_image %}
+            <img
+              src="{{ url_for('static', filename='uploads/' + cattle.front_image) }}"
+              class="img-fluid rounded"
+              alt="{{ cattle.name or 'Cattle' }}"
+              style="height: 80px; width: 80px; object-fit: cover"
+            />
+            {% else %}
+            <div
+              class="bg-light rounded d-flex align-items-center justify-content-center mx-auto"
+              style="height: 80px; width: 80px"
+            >
+              <i class="fas fa-cow text-muted fa-2x"></i>
+            </div>
+            {% endif %}
+            <h5 class="mt-2 text-success">
+              {{ cattle.name or 'Unnamed Cattle' }}
+            </h5>
+            <p class="text-muted mb-0">
+              {{ cattle.breed.name if cattle.breed else 'Unknown Breed' }}
+            </p>
+          </div>
+
+          <div class="small">
+            <div class="d-flex justify-content-between mb-1">
+              <span>ID:</span>
+              <strong>{{ cattle.cattle_id }}</strong>
+            </div>
+            {% if cattle.breed %}
+            <div class="d-flex justify-content-between mb-1">
+              <span>Category:</span>
+              <strong>{{ cattle.breed.category }}</strong>
+            </div>
+            {% endif %} {% if cattle.weight %}
+            <div class="d-flex justify-content-between mb-1">
+              <span>Weight:</span>
+              <strong>{{ cattle.weight }} kg</strong>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+      <div class="card shadow border-0">
+        <div class="card-header bg-success text-white">
+          <h5 class="mb-0">
+            <i class="fas fa-chart-bar me-2"></i>Daily Nutrition Summary
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row text-center">
+            <div class="col-md-4">
+              <div class="p-3 bg-primary bg-opacity-10 rounded">
+                <i class="fas fa-tint fa-2x text-primary mb-2"></i>
+                <h4 class="mb-1">
+                  {{ nutrition_plan.daily_milk_production }} L
+                </h4>
+                <small class="text-muted">Daily Milk Production</small>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-3 bg-success bg-opacity-10 rounded">
+                <i class="fas fa-weight fa-2x text-success mb-2"></i>
+                <h4 class="mb-1">{{ nutrition_plan.daily_food_intake }} kg</h4>
+                <small class="text-muted">Daily Food Intake</small>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-3 bg-info bg-opacity-10 rounded">
+                <i class="fas fa-tint fa-2x text-info mb-2"></i>
+                <h4 class="mb-1">
+                  {{ nutrition_plan.daily_water_consumption }} L
+                </h4>
+                <small class="text-muted">Daily Water Consumption</small>
+              </div>
+            </div>
+          </div>
+
+          {% if plan_data.daily_recommendations %}
+          <div class="mt-3 p-3 bg-light rounded">
+            <h6 class="mb-2">
+              <i class="fas fa-info-circle text-info me-2"></i>Daily
+              Recommendations
+            </h6>
+            <div class="row small">
+              <div class="col-md-4">
+                <strong>Dry Matter:</strong> {{
+                plan_data.daily_recommendations.dry_matter_intake }}
+              </div>
+              <div class="col-md-4">
+                <strong>Water:</strong> {{
+                plan_data.daily_recommendations.water_intake }}
+              </div>
+              <div class="col-md-4">
+                <strong>Milk Target:</strong> {{
+                plan_data.daily_recommendations.milk_production }}
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Weekly Schedule -->
+  {% if plan_data.weekly_schedule %}
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card shadow border-0">
+        <div class="card-header bg-warning text-dark">
+          <h5 class="mb-0">
+            <i class="fas fa-calendar-week me-2"></i>7-Day Feeding Schedule
+          </h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-dark">
+                <tr>
+                  <th>Day</th>
+                  <th>Morning (6:00 AM)</th>
+                  <th>Afternoon (1:00 PM)</th>
+                  <th>Evening (6:00 PM)</th>
+                  <th>Special Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for day_plan in plan_data.weekly_schedule %}
+                <tr>
+                  <td>
+                    <strong class="text-success">{{ day_plan.day }}</strong>
+                  </td>
+                  <td class="bg-light bg-opacity-50">
+                    <div class="small">
+                      <div>
+                        <i class="fas fa-utensils text-success me-1"></i>{{
+                        day_plan.morning.feed }}
+                      </div>
+                      <div>
+                        <i class="fas fa-tint text-primary me-1"></i>{{
+                        day_plan.morning.water }}
+                      </div>
+                      <div>
+                        <i class="fas fa-pills text-warning me-1"></i>{{
+                        day_plan.morning.supplements }}
+                      </div>
+                    </div>
+                  </td>
+                  <td class="bg-success bg-opacity-10">
+                    <div class="small">
+                      <div>
+                        <i class="fas fa-utensils text-success me-1"></i>{{
+                        day_plan.afternoon.feed }}
+                      </div>
+                      <div>
+                        <i class="fas fa-tint text-primary me-1"></i>{{
+                        day_plan.afternoon.water }}
+                      </div>
+                      <div>
+                        <i class="fas fa-pills text-warning me-1"></i>{{
+                        day_plan.afternoon.supplements }}
+                      </div>
+                    </div>
+                  </td>
+                  <td class="bg-info bg-opacity-10">
+                    <div class="small">
+                      <div>
+                        <i class="fas fa-utensils text-success me-1"></i>{{
+                        day_plan.evening.feed }}
+                      </div>
+                      <div>
+                        <i class="fas fa-tint text-primary me-1"></i>{{
+                        day_plan.evening.water }}
+                      </div>
+                      <div>
+                        <i class="fas fa-pills text-warning me-1"></i>{{
+                        day_plan.evening.supplements }}
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <small class="text-muted"
+                      >{{ day_plan.special_notes }}</small
+                    >
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Breed-Specific Recommendations -->
+  {% if plan_data.breed_recommendations %}
+  <div class="row mb-4">
+    <div class="col-lg-6">
+      <div class="card shadow border-0 h-100">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">
+            <i class="fas fa-star me-2"></i>{{
+            plan_data.breed_recommendations.breed_name }} Care Tips
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            {{ plan_data.breed_recommendations.special_care }}
+          </div>
+
+          <h6 class="mb-3">Feeding Best Practices:</h6>
+          <ul class="list-unstyled">
+            {% for tip in plan_data.breed_recommendations.feeding_tips %}
+            <li class="mb-2">
+              <i class="fas fa-check-circle text-success me-2"></i>
+              {{ tip }}
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card shadow border-0 h-100">
+        <div class="card-header bg-secondary text-white">
+          <h5 class="mb-0">
+            <i class="fas fa-clipboard-check me-2"></i>Monitoring Checklist
+          </h5>
+        </div>
+        <div class="card-body">
+          <h6 class="mb-3">Daily Monitoring:</h6>
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" id="check1" />
+            <label class="form-check-label" for="check1">
+              Feed consumption as per schedule
+            </label>
+          </div>
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" id="check2" />
+            <label class="form-check-label" for="check2">
+              Adequate water intake
+            </label>
+          </div>
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" id="check3" />
+            <label class="form-check-label" for="check3">
+              Milk production levels
+            </label>
+          </div>
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" id="check4" />
+            <label class="form-check-label" for="check4">
+              Overall health and behavior
+            </label>
+          </div>
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" id="check5" />
+            <label class="form-check-label" for="check5">
+              Body condition score
+            </label>
+          </div>
+
+          <div class="alert alert-warning mt-3">
+            <small>
+              <i class="fas fa-exclamation-triangle me-1"></i>
+              Consult a veterinarian if you notice significant changes in
+              appetite, behavior, or milk production.
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Action Buttons -->
+  <div class="row">
+    <div class="col-12 text-center">
+      <div class="card shadow border-0">
+        <div class="card-body">
+          <h5 class="mb-3">Plan Actions</h5>
+
+          <a
+            href="{{ url_for('cattle.create_nutrition_plan_form', cattle_id=cattle.id) }}"
+            class="btn btn-warning btn-lg me-2"
+          >
+            <i class="fas fa-edit me-2"></i>Update Plan
+          </a>
+
+          <button onclick="window.print()" class="btn btn-info btn-lg me-2">
+            <i class="fas fa-print me-2"></i>Print Plan
+          </button>
+
+          <a
+            href="{{ url_for('cattle.cattle_details', cattle_id=cattle.id) }}"
+            class="btn btn-outline-success btn-lg me-2"
+          >
+            <i class="fas fa-eye me-2"></i>View Cattle Details
+          </a>
+
+          <a
+            href="{{ url_for('cattle.dashboard') }}"
+            class="btn btn-outline-secondary btn-lg"
+          >
+            <i class="fas fa-tachometer-alt me-2"></i>Back to Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Plan Generation Info -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="text-center text-muted">
+        <small>
+          <i class="fas fa-clock me-1"></i>
+          Plan generated on {{ nutrition_plan.created_at.strftime('%B %d, %Y at
+          %I:%M %p') }} |
+          <i class="fas fa-robot me-1"></i>
+          AI-Powered Nutrition Planning System
+        </small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  @media print {
+    .btn,
+    .card-header,
+    nav {
+      display: none !important;
+    }
+
+    .card {
+      border: 1px solid #ddd !important;
+      box-shadow: none !important;
+    }
+
+    .table-dark {
+      background-color: #f8f9fa !important;
+      color: #000 !important;
+    }
+  }
+</style>
+{% endblock %}

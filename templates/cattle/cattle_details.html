@@ -1,0 +1,441 @@
+{% extends "base.html" %} {% block title %}{{ cattle.name or 'Cattle Details' }}
+- Pashu Aadhaar{% endblock %} {% block content %}
+<div class="container py-4">
+  <div class="row">
+    <!-- Left Column - Images and QR -->
+    <div class="col-lg-4">
+      <!-- Pashu Aadhaar Card -->
+      <div class="card shadow-lg border-0 mb-4 cattle-aadhaar-card">
+        <div
+          class="card-header bg-gradient-primary text-white text-center py-3"
+        >
+          <h4 class="mb-0 fw-bold">पशु आधार / PASHU AADHAAR</h4>
+          <small>Government of India</small>
+        </div>
+
+        <div class="card-body p-4">
+          <div class="row">
+            <div class="col-5">
+              {% if cattle.front_image %}
+              <img
+                src="{{ url_for('static', filename='uploads/' + cattle.front_image) }}"
+                class="img-fluid rounded border"
+                alt="{{ cattle.name or 'Cattle' }}"
+                style="height: 100px; width: 100px; object-fit: cover"
+              />
+              {% else %}
+              <div
+                class="bg-light rounded border d-flex align-items-center justify-content-center"
+                style="height: 100px; width: 100px"
+              >
+                <i class="fas fa-cow text-muted fa-3x"></i>
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="col-7">
+              <h5 class="text-success fw-bold mb-1">
+                {{ cattle.name or 'Unnamed Cattle' }}
+              </h5>
+              <p class="text-muted mb-2">
+                {{ cattle.breed.name if cattle.breed else 'Unknown Breed' }}
+              </p>
+              <div class="small">
+                <div><strong>ID:</strong> {{ cattle.cattle_id }}</div>
+                <div><strong>Owner:</strong> {{ cattle.owner.name }}</div>
+                <div>
+                  <strong>Reg:</strong> {{
+                  cattle.registration_date.strftime('%d/%m/%Y') }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <hr class="my-3" />
+
+          <div class="row">
+            <div class="col-8">
+              <div class="small">
+                {% if cattle.breed %}
+                <div><strong>Origin:</strong> {{ cattle.breed.origin }}</div>
+                <div>
+                  <strong>Category:</strong> {{ cattle.breed.category }}
+                </div>
+                {% endif %} {% if cattle.weight %}
+                <div><strong>Weight:</strong> {{ cattle.weight }} kg</div>
+                {% endif %} {% if cattle.height %}
+                <div><strong>Height:</strong> {{ cattle.height }} cm</div>
+                {% endif %} {% if cattle.length %}
+                <div><strong>length:</strong> {{ cattle.length }} kg</div>
+                {% endif %} {% if cattle.width %}
+                <div><strong>width:</strong> {{ cattle.width }} cm</div>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="col-4 text-center">
+              {% if cattle.qr_code_path %}
+              <img
+                src="{{ url_for('static', filename='qr_codes/' + cattle.qr_code_path) }}"
+                class="img-fluid"
+                alt="QR Code"
+                style="max-width: 80px"
+              />
+              <div class="small text-muted mt-1">Scan QR</div>
+              {% else %}
+              <div
+                class="bg-light rounded border d-flex align-items-center justify-content-center"
+                style="height: 80px; width: 80px"
+              >
+                <i class="fas fa-qrcode text-muted fa-2x"></i>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div class="card-footer bg-light text-center py-2">
+          <small class="text-muted">
+            <i class="fas fa-shield-alt me-1"></i>
+            AI Verified • Digital India
+          </small>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="card shadow border-0">
+        <div class="card-body text-center">
+          <h6 class="mb-3">Quick Actions</h6>
+
+          <div class="d-grid gap-2">
+            <a
+              href="{{ url_for('cattle.create_nutrition_plan_form', cattle_id=cattle.id) }}"
+              class="btn btn-info"
+            >
+              <i class="fas fa-utensils me-2"></i>Create Nutrition Plan
+            </a>
+
+            {% if cattle.nutrition_plans %}
+            <a
+              href="{{ url_for('cattle.view_nutrition_plan', cattle_id=cattle.id) }}"
+              class="btn btn-outline-info"
+            >
+              <i class="fas fa-eye me-2"></i>View Nutrition Plan
+            </a>
+            {% endif %}
+
+            <a
+              href="{{ url_for('cattle.dashboard') }}"
+              class="btn btn-outline-secondary"
+            >
+              <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+
+            <button
+              class="btn btn-danger"
+              data-bs-toggle="modal"
+              data-bs-target="#deleteModal"
+            >
+              <i class="fas fa-trash me-2"></i>Delete Record
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column - Detailed Information -->
+    <div class="col-lg-8">
+      <div class="mb-3">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+              <a href="{{ url_for('cattle.dashboard') }}">Dashboard</a>
+            </li>
+            <li class="breadcrumb-item active">
+              {{ cattle.name or cattle.cattle_id }}
+            </li>
+          </ol>
+        </nav>
+      </div>
+
+      <!-- Basic Information -->
+      <div class="card shadow border-0 mb-4">
+        <div class="card-header bg-success text-white">
+          <h5 class="mb-0">
+            <i class="fas fa-info-circle me-2"></i>Basic Information
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <h6 class="text-muted">Cattle ID</h6>
+              <p class="mb-0 fw-bold">{{ cattle.cattle_id }}</p>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <h6 class="text-muted">Name</h6>
+              <p class="mb-0">{{ cattle.name or 'Not specified' }}</p>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <h6 class="text-muted">Breed</h6>
+              <p class="mb-0">
+                {% if cattle.breed %} {{ cattle.breed.name }}
+                <small class="text-muted"
+                  >({{ cattle.breed.scientific_name }})</small
+                >
+                {% else %} Not specified {% endif %}
+              </p>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <h6 class="text-muted">Registration Date</h6>
+              <p class="mb-0">
+                {{ cattle.registration_date.strftime('%B %d, %Y') }}
+              </p>
+            </div>
+
+            {% if cattle.address %}
+            <div class="col-12 mb-3">
+              <h6 class="text-muted">Location</h6>
+              <p class="mb-0">{{ cattle.address }}</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Physical Attributes -->
+      <div class="card shadow border-0 mb-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">
+            <i class="fas fa-ruler me-2"></i>Physical Attributes
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            {% if cattle.weight %}
+            <div class="col-md-4 mb-3">
+              <h6 class="text-muted">Weight</h6>
+              <p class="mb-0 fw-bold text-success">{{ cattle.weight }} kg</p>
+            </div>
+            {% endif %} {% if cattle.height %}
+            <div class="col-md-4 mb-3">
+              <h6 class="text-muted">Height</h6>
+              <p class="mb-0 fw-bold text-info">{{ cattle.height }} cm</p>
+            </div>
+            {% endif %} {% if cattle.width %}
+            <div class="col-md-4 mb-3">
+              <h6 class="text-muted">Width</h6>
+              <p class="mb-0 fw-bold text-warning">{{ cattle.width }} cm</p>
+            </div>
+            {% endif %} {% if cattle.length %}
+            <div class="col-md-4 mb-3">
+              <h6 class="text-muted">length</h6>
+              <p class="mb-0 fw-bold text-warning">{{ cattle.length }} cm</p>
+            </div>
+            {% endif %} {% if cattle.color %}
+            <div class="col-md-6 mb-3">
+              <h6 class="text-muted">Color Pattern</h6>
+              <p class="mb-0">{{ cattle.color }}</p>
+            </div>
+            {% endif %} {% if cattle.breed and cattle.breed.temperament %}
+            <div class="col-md-6 mb-3">
+              <h6 class="text-muted">Temperament</h6>
+              <p class="mb-0">{{ cattle.breed.temperament }}</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Health Information -->
+      <div class="card shadow border-0 mb-4">
+        <div class="card-header bg-warning text-dark">
+          <h5 class="mb-0">
+            <i class="fas fa-heartbeat me-2"></i>Health Status
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <h6 class="text-muted">Disease/Disability Status</h6>
+              {% if cattle.has_disease %}
+              <p class="mb-0 text-danger">
+                <i class="fas fa-exclamation-triangle me-1"></i>
+                Has medical condition
+              </p>
+              {% else %}
+              <p class="mb-0 text-success">
+                <i class="fas fa-check-circle me-1"></i>
+                Healthy
+              </p>
+              {% endif %}
+            </div>
+
+            {% if cattle.has_disease and cattle.disease_description %}
+            <div class="col-12 mb-3">
+              <h6 class="text-muted">Medical Details</h6>
+              <div class="alert alert-warning">
+                <i class="fas fa-info-circle me-2"></i>
+                {{ cattle.disease_description }}
+              </div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Insurance Information -->
+      <div class="card shadow border-0 mb-4">
+        <div class="card-header bg-secondary text-white">
+          <h5 class="mb-0">
+            <i class="fas fa-shield-alt me-2"></i>Insurance Information
+          </h5>
+        </div>
+        <div class="card-body">
+          {% if cattle.has_insurance %}
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <h6 class="text-muted">Insurance Status</h6>
+              <p class="mb-0 text-success">
+                <i class="fas fa-check-circle me-1"></i> Insured
+              </p>
+            </div>
+            <div class="col-md-6 mb-3">
+              <h6 class="text-muted">Insurance ID</h6>
+              <p class="mb-0 fw-bold text-primary">
+                {{ cattle.insurance_id or 'Not provided' }}
+              </p>
+            </div>
+          </div>
+          {% else %}
+          <p class="mb-0 text-danger">
+            <i class="fas fa-times-circle me-1"></i> Not Insured
+          </p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Images Gallery -->
+      <div class="card shadow border-0">
+        <div class="card-header bg-info text-white">
+          <h5 class="mb-0">
+            <i class="fas fa-images me-2"></i>Image Gallery (All 4 Views)
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            {% for image in cattle.get_images() %}
+            <div class="col-md-6 col-lg-3 mb-3">
+              <div class="text-center">
+                <h6 class="mb-2 text-muted">{{ image.type }}</h6>
+                <img
+                  src="{{ url_for('static', filename='uploads/' + image.path) }}"
+                  class="img-fluid rounded shadow"
+                  alt="{{ image.type }}"
+                  style="
+                    height: 150px;
+                    width: 100%;
+                    object-fit: cover;
+                    cursor: pointer;
+                  "
+                  onclick="showImageModal('{{ url_for('static', filename='uploads/' + image.path) }}', '{{ image.type }}')"
+                />
+              </div>
+            </div>
+            {% else %}
+            <div class="col-12 text-center text-muted">
+              <i class="fas fa-camera fa-3x mb-3"></i>
+              <p>No images uploaded</p>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">
+          <i class="fas fa-exclamation-triangle me-2"></i>Delete Cattle Record
+        </h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete this cattle record?</p>
+        <div class="alert alert-warning">
+          <i class="fas fa-warning me-2"></i>
+          <strong>Warning:</strong> This action cannot be undone. All associated
+          data including images, QR codes, and nutrition plans will be
+          permanently deleted.
+        </div>
+        <p>
+          <strong>Cattle:</strong> {{ cattle.name or 'Unnamed' }} (ID: {{
+          cattle.cattle_id }})
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <a
+          href="{{ url_for('cattle.delete_cattle_form', cattle_id=cattle.id) }}"
+          class="btn btn-danger"
+        >
+          <i class="fas fa-shield-alt me-2"></i>Secure Delete
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Image Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="imageModalTitle">Image View</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+      <div class="modal-body text-center">
+        <img id="modalImage" class="img-fluid rounded" alt="Full size image" />
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .cattle-aadhaar-card {
+    border-radius: 15px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  }
+
+  .bg-gradient-primary {
+    background: linear-gradient(45deg, #0d6efd, #6610f2);
+  }
+</style>
+
+<script>
+  function showImageModal(imageSrc, imageTitle) {
+    document.getElementById("modalImage").src = imageSrc;
+    document.getElementById("imageModalTitle").textContent =
+      imageTitle + " View";
+    new bootstrap.Modal(document.getElementById("imageModal")).show();
+  }
+</script>
+{% endblock %}

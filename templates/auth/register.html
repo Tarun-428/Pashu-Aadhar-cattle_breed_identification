@@ -1,0 +1,208 @@
+{% extends "base.html" %} {% block title %}Register - Cattle Breed
+Identification{% endblock %} {% block content %}
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-6">
+      <div class="card shadow-lg border-0">
+        <!-- Header -->
+        <div class="card-header bg-success text-white text-center">
+          <h3 class="mb-0">
+            <i class="fas fa-user-plus me-2"></i>Create New Account
+          </h3>
+        </div>
+
+        <!-- Card Body -->
+        <div class="card-body p-4">
+          <form id="registerForm">
+            <!-- ✅ Registration Section -->
+            <div id="registration-section">
+              <div class="row">
+                <div class="col-md-12 mb-3">
+                  <label for="name" class="form-label">
+                    <i class="fas fa-id-card me-1"></i>Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="name"
+                    name="name"
+                    required
+                    placeholder="Enter your full name"
+                  />
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="email" class="form-label">
+                    <i class="fas fa-envelope me-1"></i>Email *
+                  </label>
+                  <input
+                    type="email"
+                    class="form-control"
+                    id="email"
+                    name="email"
+                    required
+                    placeholder="your@email.com"
+                  />
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label for="mobile" class="form-label">
+                    <i class="fas fa-phone me-1"></i>Mobile Number *
+                  </label>
+                  <input
+                    type="tel"
+                    class="form-control"
+                    id="mobile"
+                    name="mobile"
+                    required
+                    placeholder="9876543210"
+                  />
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="password" class="form-label">
+                    <i class="fas fa-lock me-1"></i>Password *
+                  </label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="password"
+                    name="password"
+                    required
+                    minlength="6"
+                    placeholder="At least 6 characters"
+                  />
+                </div>
+
+                <div class="col-md-6 mb-4">
+                  <label for="confirm_password" class="form-label">
+                    <i class="fas fa-lock me-1"></i>Confirm Password *
+                  </label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="confirm_password"
+                    name="confirm_password"
+                    required
+                    placeholder="Repeat your password"
+                  />
+                </div>
+              </div>
+
+              <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                <small
+                  >After registration, you'll receive an OTP on your mobile
+                  number.</small
+                >
+              </div>
+
+              <div class="d-grid">
+                <button
+                  type="button"
+                  id="sendOtpBtn"
+                  class="btn btn-success btn-lg"
+                >
+                  <i class="fas fa-paper-plane me-2"></i>Send OTP
+                </button>
+              </div>
+            </div>
+
+            <!-- ✅ OTP Verification Section -->
+            <div id="otp-section" style="display: none">
+              <div class="my-4">
+                <label for="otp" class="form-label">
+                  <i class="fas fa-key me-1"></i>Enter OTP *
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="otp"
+                  name="otp"
+                  placeholder="Enter OTP"
+                  required
+                />
+              </div>
+
+              <div class="d-grid">
+                <button type="submit" class="btn btn-primary btn-lg">
+                  <i class="fas fa-user-check me-2"></i>Verify & Create Account
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- Footer -->
+        <div class="card-footer text-center bg-light">
+          <p class="mb-0">
+            Already have an account?
+            <a href="{{ url_for('auth.login') }}" class="text-decoration-none">
+              <i class="fas fa-sign-in-alt me-1"></i>Login here
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ SweetAlert & JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  // ✅ Send OTP
+  document.getElementById("sendOtpBtn").addEventListener("click", function () {
+    const formData = new FormData(document.getElementById("registerForm"));
+
+    fetch('{{ url_for("auth.send_otp_api") }}', {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === "success") {
+          Swal.fire("OTP Sent!", data.message, "success");
+          document.getElementById("registration-section").style.display =
+            "none";
+          document.getElementById("otp-section").style.display = "block";
+        } else {
+          Swal.fire("Error", data.message, "error");
+        }
+      });
+  });
+
+  // ✅ Verify OTP
+  document
+    .getElementById("registerForm")
+    .addEventListener("submit", function (e) {
+      e.preventDefault();
+      const otp = document.getElementById("otp").value;
+
+      fetch('{{ url_for("auth.verify_otp_api") }}', {
+        method: "POST",
+        body: new URLSearchParams({ otp: otp }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.status === "success") {
+            Swal.fire({
+              title: "Account Verified!",
+              text: "Your username is: " + data.username,
+              icon: "success",
+              confirmButtonText: "OK",
+            }).then(() => {
+              window.location.href = '{{ url_for("auth.login") }}';
+            });
+          } else {
+            Swal.fire("Error", data.message, "error");
+          }
+        });
+    });
+</script>
+
+{% endblock %}

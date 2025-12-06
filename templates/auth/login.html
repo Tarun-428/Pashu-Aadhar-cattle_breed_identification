@@ -1,0 +1,68 @@
+{% extends "base.html" %} {% block title %}Login - Cattle Breed Identification{%
+endblock %} {% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-5">
+      <div class="card shadow-lg border-0">
+        <div class="card-header bg-success text-white text-center">
+          <h3 class="mb-0">
+            <i class="fas fa-sign-in-alt me-2"></i>Login to Your Account
+          </h3>
+        </div>
+
+        <div class="card-body p-4">
+          <form method="POST" action="{{ url_for('auth.login') }}">
+            <div class="mb-3">
+              <label for="username" class="form-label">
+                <i class="fas fa-user me-1"></i>Username/Email
+              </label>
+              <input
+                type="text"
+                class="form-control"
+                id="username"
+                name="username"
+                required
+                autocomplete="username or Email"
+                placeholder="Enter your username"
+              />
+            </div>
+
+            <div class="mb-4">
+              <label for="password" class="form-label">
+                <i class="fas fa-lock me-1"></i>Password
+              </label>
+              <input
+                type="password"
+                class="form-control"
+                id="password"
+                name="password"
+                required
+                autocomplete="current-password"
+                placeholder="Enter your password"
+              />
+            </div>
+
+            <div class="d-grid">
+              <button type="submit" class="btn btn-success btn-lg">
+                <i class="fas fa-sign-in-alt me-2"></i>Login
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card-footer text-center bg-light">
+          <p class="mb-0">
+            Don't have an account?
+            <a
+              href="{{ url_for('auth.register') }}"
+              class="text-decoration-none"
+            >
+              <i class="fas fa-user-plus me-1"></i>Register here
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

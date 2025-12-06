@@ -1,0 +1,225 @@
+{% extends "base.html" %} {% block title %}Identification Results - Cattle Breed
+Identification{% endblock %} {% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="text-center mb-4">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-center">
+            <li class="breadcrumb-item">
+              <a href="{{ url_for('index') }}">Home</a>
+            </li>
+            <li class="breadcrumb-item">
+              <a href="{{ url_for('identify') }}">Identify</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">Results</li>
+          </ol>
+        </nav>
+      </div>
+
+      <!-- Results Card -->
+      <div class="card shadow-lg border-0">
+        <div class="card-header bg-success text-white text-center">
+          <h2 class="mb-0">
+            <i class="fas fa-check-circle me-2"></i>Identification Results
+          </h2>
+        </div>
+
+        <div class="card-body p-4">
+          <!-- Uploaded Image -->
+          <div class="text-center mb-4">
+            <h5 class="text-muted mb-3">Analyzed Image</h5>
+            {% if result.image_filename %}
+            <img
+              src="{{ url_for('static', filename='uploads/' + result.image_filename) }}"
+              class="img-fluid rounded shadow"
+              alt="Uploaded image"
+              style="max-height: 300px"
+            />
+            {% endif %}
+          </div>
+
+          <!-- Prediction Results -->
+          {% if result.predicted_breed %}
+          <div class="row">
+            <div class="col-md-8">
+              <h3 class="text-success fw-bold mb-3">
+                <i class="fas fa-cow me-2"></i>{{ result.predicted_breed.name }}
+              </h3>
+
+              {% if result.predicted_breed.scientific_name %}
+              <p class="text-muted fst-italic mb-3">
+                {{ result.predicted_breed.scientific_name }}
+              </p>
+              {% endif %}
+
+              <!-- Confidence Score -->
+              <div class="mb-4">
+                <h6 class="text-muted">Confidence Score</h6>
+                <div class="progress mb-2" style="height: 25px">
+                  <div
+                    class="progress-bar bg-success"
+                    role="progressbar"
+                    style="width: {{ (result.confidence_score * 100)|round(1) }}%"
+                    aria-valuenow="{{ (result.confidence_score * 100)|round(1) }}"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                  >
+                    {{ (result.confidence_score * 100)|round(1) }}%
+                  </div>
+                </div>
+                {% if result.confidence_score >= 0.8 %}
+                <small class="text-success">
+                  <i class="fas fa-check-circle me-1"></i>High confidence
+                  prediction
+                </small>
+                {% elif result.confidence_score >= 0.6 %}
+                <small class="text-warning">
+                  <i class="fas fa-exclamation-triangle me-1"></i>Moderate
+                  confidence prediction
+                </small>
+                {% else %}
+                <small class="text-danger">
+                  <i class="fas fa-question-circle me-1"></i>Low confidence
+                  prediction
+                </small>
+                {% endif %}
+              </div>
+
+              <!-- Breed Information Summary -->
+              {% if result.predicted_breed.description %}
+              <div class="mb-3">
+                <h6 class="text-muted">Description</h6>
+                <p>
+                  {{ result.predicted_breed.description[:200] }}{% if
+                  result.predicted_breed.description|length > 200 %}...{% endif
+                  %}
+                </p>
+              </div>
+              {% endif %}
+
+              <!-- Key Characteristics -->
+              <div class="row mb-4">
+                {% if result.predicted_breed.origin %}
+                <div class="col-6 mb-2">
+                  <small class="text-muted">Origin:</small><br />
+                  <strong>{{ result.predicted_breed.origin }}</strong>
+                </div>
+                {% endif %} {% if result.predicted_breed.category %}
+                <div class="col-6 mb-2">
+                  <small class="text-muted">Category:</small><br />
+                  <strong>{{ result.predicted_breed.category }}</strong>
+                </div>
+                {% endif %} {% if result.predicted_breed.milk_production %}
+                <div class="col-6 mb-2">
+                  <small class="text-muted">Milk Production:</small><br />
+                  <strong
+                    >{{ result.predicted_breed.milk_production }} L/day</strong
+                  >
+                </div>
+                {% endif %} {% if result.predicted_breed.average_weight_female
+                %}
+                <div class="col-6 mb-2">
+                  <small class="text-muted">Avg. Weight (Female):</small><br />
+                  <strong
+                    >{{ result.predicted_breed.average_weight_female }}
+                    kg</strong
+                  >
+                </div>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              {% if result.predicted_breed.image_url %}
+              <div class="text-center">
+                <h6 class="text-muted mb-3">Reference Image</h6>
+                <img
+                  src="{{ result.predicted_breed.image_url }}"
+                  class="img-fluid rounded shadow-sm"
+                  alt="{{ result.predicted_breed.name }}"
+                  style="max-height: 200px"
+                />
+              </div>
+              {% endif %}
+            </div>
+          </div>
+
+          {% else %}
+          <!-- No breed match found -->
+          <div class="text-center">
+            <div class="alert alert-warning">
+              <h4 class="alert-heading">
+                <i class="fas fa-exclamation-triangle me-2"></i>Breed Not Found
+              </h4>
+              <p>
+                Our AI detected a cattle breed but couldn't match it to our
+                database.
+              </p>
+              <p class="mb-0">
+                Confidence Score: {{ (result.confidence_score * 100)|round(1)
+                }}%
+              </p>
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Action Buttons -->
+          <div class="text-center mt-4">
+            {% if result.predicted_breed %}
+            <a
+              href="{{ url_for('breed_details', breed_id=result.predicted_breed.id) }}"
+              class="btn btn-success btn-lg me-2"
+            >
+              <i class="fas fa-info-circle me-2"></i>View Full Details
+            </a>
+            {% endif %}
+
+            <a
+              href="{{ url_for('identify') }}"
+              class="btn btn-outline-primary btn-lg me-2"
+            >
+              <i class="fas fa-camera me-2"></i>Identify Another
+            </a>
+
+            <a
+              href="{{ url_for('index') }}"
+              class="btn btn-outline-secondary btn-lg"
+            >
+              <i class="fas fa-home me-2"></i>Back to Home
+            </a>
+          </div>
+        </div>
+
+        <!-- Result Details Footer -->
+        <div class="card-footer bg-light text-center">
+          <small class="text-muted">
+            <i class="fas fa-clock me-1"></i>
+            Identified on {{ result.created_at.strftime('%B %d, %Y at %I:%M %p')
+            }}
+          </small>
+        </div>
+      </div>
+
+      <!-- Tips for Better Results -->
+      <div class="card mt-4 border-info">
+        <div class="card-header bg-info text-white">
+          <h5 class="mb-0">
+            <i class="fas fa-lightbulb me-2"></i>Improve Accuracy
+          </h5>
+        </div>
+        <div class="card-body">
+          <p class="mb-2">For better identification results:</p>
+          <ul class="mb-0">
+            <li>Use clear, well-lit images</li>
+            <li>Capture the full body of the cattle</li>
+            <li>Ensure the cattle is the main subject</li>
+            <li>Avoid images with multiple animals</li>
+            <li>Use side or front-facing angles</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

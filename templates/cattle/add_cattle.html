@@ -1,0 +1,1010 @@
+{% extends "base.html" %} {% block title %}Add Cattle - Registration{% endblock
+%} {% block extra_head %}
+<style>
+  .image-upload-section {
+    border: 2px dashed #007bff;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+
+  .image-upload-section.error {
+    border-color: #dc3545;
+    background: #f8d7da;
+  }
+
+  .image-upload-section.success {
+    border-color: #28a745;
+    background: #d4edda;
+  }
+
+  .image-upload-section:hover {
+    background: #e3f2fd;
+    border-color: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+  }
+
+  .image-upload-section.dragover {
+    background: #d4edda;
+    border-color: #28a745;
+  }
+
+  .preview-image {
+    max-width: 100%;
+    max-height: 120px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .camera-frame {
+    position: relative;
+    display: inline-block;
+    border: 3px solid #007bff;
+    border-radius: 12px;
+    padding: 2px;
+  }
+
+  .field-error {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+  }
+
+  .error-message {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: none;
+  }
+
+  .camera-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+  }
+
+  .camera-button:hover {
+    background: #0056b3;
+    transform: scale(1.1);
+  }
+
+  .camera-frame::before {
+    content: "";
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    border: 2px solid rgba(40, 167, 69, 0.3);
+    border-radius: 10px;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% {
+      border-color: rgba(40, 167, 69, 0.3);
+    }
+    50% {
+      border-color: rgba(40, 167, 69, 0.7);
+    }
+    100% {
+      border-color: rgba(40, 167, 69, 0.3);
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <!-- Header -->
+      <div class="text-center mb-4">
+        <h1 class="display-6 fw-bold text-success">
+          <i class="fas fa-plus-circle me-3"></i>Register New Cattle
+        </h1>
+        <p class="lead text-muted">
+          Create a digital Pashu Aadhaar card for your cattle with AI-powered
+          breed identification
+        </p>
+      </div>
+
+      <form
+        method="POST"
+        action="{{ url_for('cattle.register_cattle') }}"
+        enctype="multipart/form-data"
+      >
+        <!-- Image Capture Section -->
+        <div class="card shadow border-0 mb-4">
+          <div class="card-header bg-success text-white">
+            <h4 class="mb-0">
+              <i class="fas fa-camera me-2"></i>Step 1: Capture Cattle Images
+              (Required)
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle me-2"></i>
+              <strong>Instructions:</strong> Capture clear images from all four
+              angles for accurate AI breed identification.
+            </div>
+
+            <div class="row">
+              <!-- Front Image -->
+              <div class="col-md-6 col-lg-3 mb-3">
+                <label class="form-label fw-bold">Front View *</label>
+                <div
+                  class="image-upload-section"
+                  onclick="showImageOptions('front_image')"
+                >
+                  <button
+                    type="button"
+                    class="camera-button"
+                    onclick="event.stopPropagation(); captureImage('front_image')"
+                  >
+                    <i class="fas fa-camera"></i>
+                  </button>
+                  <div id="front_preview">
+                    <i class="fas fa-camera fa-2x text-primary mb-2"></i>
+                    <p class="mb-0">Click to capture<br />or upload</p>
+                  </div>
+                </div>
+                <input
+                  type="file"
+                  id="front_image"
+                  name="front_image"
+                  accept="image/*"
+                  capture="environment"
+                  style="display: none"
+                  onchange="previewImage(this, 'front_preview')"
+                  required
+                />
+                <div class="error-message" id="front_image_error">
+                  Front view image is required
+                </div>
+              </div>
+
+              <!-- Rear Image -->
+              <div class="col-md-6 col-lg-3 mb-3">
+                <label class="form-label fw-bold">Rear View *</label>
+                <div
+                  class="image-upload-section"
+                  onclick="showImageOptions('rear_image')"
+                >
+                  <button
+                    type="button"
+                    class="camera-button"
+                    onclick="event.stopPropagation(); captureImage('rear_image')"
+                  >
+                    <i class="fas fa-camera"></i>
+                  </button>
+                  <div id="rear_preview">
+                    <i class="fas fa-camera fa-2x text-primary mb-2"></i>
+                    <p class="mb-0">Click to capture<br />or upload</p>
+                  </div>
+                </div>
+                <input
+                  type="file"
+                  id="rear_image"
+                  name="rear_image"
+                  accept="image/*"
+                  capture="environment"
+                  style="display: none"
+                  onchange="previewImage(this, 'rear_preview')"
+                  required
+                />
+                <div class="error-message" id="rear_image_error">
+                  Rear view image is required
+                </div>
+              </div>
+
+              <!-- Left Image -->
+              <div class="col-md-6 col-lg-3 mb-3">
+                <label class="form-label fw-bold">Left Side *</label>
+                <div
+                  class="image-upload-section"
+                  onclick="showImageOptions('left_image')"
+                >
+                  <button
+                    type="button"
+                    class="camera-button"
+                    onclick="event.stopPropagation(); captureImage('left_image')"
+                  >
+                    <i class="fas fa-camera"></i>
+                  </button>
+                  <div id="left_preview">
+                    <i class="fas fa-camera fa-2x text-primary mb-2"></i>
+                    <p class="mb-0">Click to capture<br />or upload</p>
+                  </div>
+                </div>
+                <input
+                  type="file"
+                  id="left_image"
+                  name="left_image"
+                  accept="image/*"
+                  capture="environment"
+                  style="display: none"
+                  onchange="previewImage(this, 'left_preview')"
+                  required
+                />
+                <div class="error-message" id="left_image_error">
+                  Left side image is required
+                </div>
+              </div>
+
+              <!-- Right Image -->
+              <div class="col-md-6 col-lg-3 mb-3">
+                <label class="form-label fw-bold">Right Side *</label>
+                <div
+                  class="image-upload-section"
+                  onclick="showImageOptions('right_image')"
+                >
+                  <button
+                    type="button"
+                    class="camera-button"
+                    onclick="event.stopPropagation(); captureImage('right_image')"
+                  >
+                    <i class="fas fa-camera"></i>
+                  </button>
+                  <div id="right_preview">
+                    <i class="fas fa-camera fa-2x text-primary mb-2"></i>
+                    <p class="mb-0">Click to capture<br />or upload</p>
+                  </div>
+                </div>
+                <input
+                  type="file"
+                  id="right_image"
+                  name="right_image"
+                  accept="image/*"
+                  capture="environment"
+                  style="display: none"
+                  onchange="previewImage(this, 'right_preview')"
+                  required
+                />
+                <div class="error-message" id="right_image_error">
+                  Right side image is required
+                </div>
+              </div>
+            </div>
+
+            <div class="text-center mt-3">
+              <button
+                type="button"
+                class="btn btn-info"
+                onclick="identifyBreed()"
+              >
+                <i class="fas fa-brain me-2"></i>AI Identify Breed
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Results Section -->
+        <div
+          id="ai-results"
+          class="card shadow border-0 mb-4"
+          style="display: none"
+        >
+          <div class="card-header bg-info text-white">
+            <h4 class="mb-0">
+              <i class="fas fa-robot me-2"></i>AI Identification Results
+            </h4>
+          </div>
+          <div class="card-body">
+            <div id="ai-content">
+              <!-- AI results will be populated here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Cattle Details Section -->
+        <div class="card shadow border-0 mb-4">
+          <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">
+              <i class="fas fa-info-circle me-2"></i>Step 2: Cattle Details
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <!-- Dairy Classification -->
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Cattle Type *</label>
+                <div>
+                  <div class="form-check form-check-inline">
+                    <input
+                      class="form-check-input"
+                      type="radio"
+                      id="type_dairy"
+                      name="cattle_type"
+                      value="dairy"
+                      required
+                    />
+                    <label class="form-check-label" for="type_dairy"
+                      >Dairy</label
+                    >
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input
+                      class="form-check-input"
+                      type="radio"
+                      id="type_non_dairy"
+                      name="cattle_type"
+                      value="non_dairy"
+                      required
+                    />
+                    <label class="form-check-label" for="type_non_dairy"
+                      >Non-Dairy</label
+                    >
+                  </div>
+                </div>
+                <div class="error-message" id="cattle_type_error">
+                  Please select cattle type
+                </div>
+              </div>
+
+              <!-- Breed Selection -->
+              <div class="col-md-4 mb-3">
+                <label for="breed_id" class="form-label">Breed *</label>
+                <select
+                  class="form-select"
+                  id="breed_id"
+                  name="breed_id"
+                  required
+                >
+                  <option value="">Select Breed</option>
+                  {% for breed in breeds %}
+                  <option value="{{ breed.id }}">
+                    {{ breed.name }} ({{ breed.origin }})
+                  </option>
+                  {% endfor %}
+                </select>
+                <div class="error-message" id="breed_id_error">
+                  Please select a breed
+                </div>
+              </div>
+
+              <!-- Animal Name -->
+              <div class="col-md-4 mb-3">
+                <label for="name" class="form-label">Animal Name *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="name"
+                  name="name"
+                  required
+                  placeholder="e.g., Ganga, Lakshmi"
+                />
+                <div class="error-message" id="name_error">
+                  Animal name is required
+                </div>
+              </div>
+            </div>
+
+            <!-- Physical Attributes -->
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label for="weight" class="form-label">Weight (kg) *</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="weight"
+                  name="weight"
+                  step="0.1"
+                  min="0"
+                  placeholder="e.g., 350.5"
+                  required
+                />
+                <div class="error-message" id="weight_error">
+                  Weight is required
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label for="height" class="form-label">Height (cm) *</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="height"
+                  name="height"
+                  step="0.1"
+                  min="0"
+                  placeholder="e.g., 125.0"
+                  required
+                />
+                <div class="error-message" id="height_error">
+                  Height is required
+                </div>
+              </div>
+
+              <!-- ✅ NEW LENGTH FIELD -->
+              <div class="col-md-4 mb-3">
+                <label for="length" class="form-label">Length (cm)</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="length"
+                  name="length"
+                  step="0.1"
+                  min="0"
+                  placeholder="e.g., 150.0"
+                />
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label for="width" class="form-label">Width (cm)</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="width"
+                  name="width"
+                  step="0.1"
+                  min="0"
+                  placeholder="e.g., 45.0"
+                />
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="color" class="form-label">Color Pattern *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="color"
+                  name="color"
+                  required
+                  placeholder="e.g., Black and white patches"
+                />
+                <div class="error-message" id="color_error">
+                  Color pattern is required
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="address" class="form-label"
+                  >Location/Address *</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="address"
+                  name="address"
+                  required
+                  placeholder="Village, District, State"
+                />
+                <div class="error-message" id="address_error">
+                  Location/Address is required
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Health Information -->
+        <div class="card shadow border-0 mb-4">
+          <div class="card-header bg-warning text-dark">
+            <h4 class="mb-0">
+              <i class="fas fa-heartbeat me-2"></i>Step 3: Health Information
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label class="form-label"
+                >Does this cattle have any disease or disability?</label
+              >
+              <div>
+                <div class="form-check form-check-inline">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    id="disease_no"
+                    name="has_disease"
+                    value="no"
+                    checked
+                  />
+                  <label class="form-check-label" for="disease_no">No</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    id="disease_yes"
+                    name="has_disease"
+                    value="yes"
+                  />
+                  <label class="form-check-label" for="disease_yes">Yes</label>
+                </div>
+              </div>
+            </div>
+
+            <div
+              id="disease_description_section"
+              class="mb-3"
+              style="display: none"
+            >
+              <label for="disease_description" class="form-label"
+                >Disease/Disability Description</label
+              >
+              <textarea
+                class="form-control"
+                id="disease_description"
+                name="disease_description"
+                rows="3"
+                placeholder="Please describe the disease or disability..."
+              ></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Insurance Information -->
+        <div class="card shadow border-0 mb-4">
+          <div class="card-header bg-secondary text-white">
+            <h4 class="mb-0">
+              <i class="fas fa-shield-alt me-2"></i>Step 4: Insurance
+              Information
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label class="form-label">Does this cattle have insurance?</label>
+              <div>
+                <div class="form-check form-check-inline">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    id="insurance_no"
+                    name="has_insurance"
+                    value="no"
+                    checked
+                  />
+                  <label class="form-check-label" for="insurance_no">No</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    id="insurance_yes"
+                    name="has_insurance"
+                    value="yes"
+                  />
+                  <label class="form-check-label" for="insurance_yes"
+                    >Yes</label
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div id="insurance_id_section" class="mb-3" style="display: none">
+              <label for="insurance_id" class="form-label"
+                >Insurance Unique ID *</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="insurance_id"
+                name="insurance_id"
+                placeholder="Enter insurance unique ID"
+              />
+              <div class="error-message" id="insurance_id_error">
+                Insurance ID is required if insurance is selected
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Section -->
+        <div class="card shadow border-0">
+          <div class="card-body text-center">
+            <h5 class="mb-3">Ready to Register?</h5>
+            <p class="text-muted mb-4">
+              Once registered, a unique 12-digit Pashu Aadhaar ID will be
+              generated with QR code.
+            </p>
+
+            <button type="submit" class="btn btn-success btn-lg me-3">
+              <i class="fas fa-save me-2"></i>Register Cattle
+            </button>
+
+            <a
+              href="{{ url_for('cattle.dashboard') }}"
+              class="btn btn-outline-secondary btn-lg"
+            >
+              <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Enhanced mobile camera integration and validation
+  let uploadedImageCount = 0;
+
+  // Show image options (camera or file)
+  function showImageOptions(inputId) {
+    document.getElementById(inputId).click();
+  }
+
+  // Capture image using camera (mobile-specific)
+  function captureImage(inputId) {
+    const input = document.getElementById(inputId);
+    input.setAttribute("capture", "environment");
+    input.click();
+  }
+
+  // Preview uploaded images with validation
+  function previewImage(input, previewId) {
+    const errorId = input.id + "_error";
+    const uploadSection = input.parentElement.querySelector(
+      ".image-upload-section"
+    );
+
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        showError(errorId, "Please select a valid image file");
+        uploadSection.classList.add("error");
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        showError(errorId, "Image size must be less than 5MB");
+        uploadSection.classList.add("error");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        document.getElementById(
+          previewId
+        ).innerHTML = `<img src="${e.target.result}" class="preview-image" alt="Preview">
+                 <div class="mt-2"><small class="text-success"><i class="fas fa-check"></i> Image uploaded</small></div>`;
+
+        uploadSection.classList.remove("error");
+        uploadSection.classList.add("success");
+        hideError(errorId);
+        updateImageCount();
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  // Update image count and validate
+  function updateImageCount() {
+    const imageInputs = [
+      "front_image",
+      "rear_image",
+      "left_image",
+      "right_image",
+    ];
+    uploadedImageCount = imageInputs.filter(
+      (id) => document.getElementById(id).files.length > 0
+    ).length;
+
+    // Update AI button state
+    const aiButton = document.querySelector(
+      'button[onclick="identifyBreed()"]'
+    );
+    if (uploadedImageCount >= 1) {
+      aiButton.disabled = false;
+      aiButton.classList.remove("btn-secondary");
+      aiButton.classList.add("btn-info");
+    } else {
+      aiButton.disabled = true;
+      aiButton.classList.remove("btn-info");
+      aiButton.classList.add("btn-secondary");
+    }
+  }
+
+  // Form validation
+  function validateForm() {
+    let isValid = true;
+
+    // Validate all 4 images
+    const imageInputs = [
+      "front_image",
+      "rear_image",
+      "left_image",
+      "right_image",
+    ];
+    imageInputs.forEach((inputId) => {
+      const input = document.getElementById(inputId);
+      const errorId = inputId + "_error";
+
+      if (!input.files || input.files.length === 0) {
+        showError(
+          errorId,
+          `${inputId.replace("_", " ").replace("image", "view")} is required`
+        );
+        input.parentElement
+          .querySelector(".image-upload-section")
+          .classList.add("error");
+        isValid = false;
+      }
+    });
+
+    // Validate form fields
+    const requiredFields = [
+      "cattle_type",
+      "breed_id",
+      "name",
+      "weight",
+      "height",
+      "color",
+      "address",
+    ];
+    requiredFields.forEach((fieldId) => {
+      const field =
+        document.getElementById(fieldId) ||
+        document.querySelector(`input[name="${fieldId}"]`);
+      const errorId = fieldId + "_error";
+
+      if (fieldId === "cattle_type") {
+        const radios = document.querySelectorAll('input[name="cattle_type"]');
+        const isChecked = Array.from(radios).some((radio) => radio.checked);
+        if (!isChecked) {
+          showError(errorId, "Please select cattle type");
+          isValid = false;
+        } else {
+          hideError(errorId);
+        }
+      } else if (field && !field.value.trim()) {
+        showError(
+          errorId,
+          field.previousElementSibling.textContent.replace("*", "").trim() +
+            " is required"
+        );
+        field.classList.add("field-error");
+        isValid = false;
+      } else if (field) {
+        hideError(errorId);
+        field.classList.remove("field-error");
+      }
+    });
+
+    if (!isValid) {
+      alert(
+        "Please fill all required fields and upload all 4 images before submitting."
+      );
+    }
+
+    return isValid;
+  }
+
+  // Show/hide error messages
+  function showError(errorId, message) {
+    const errorElement = document.getElementById(errorId);
+    if (errorElement) {
+      errorElement.textContent = message;
+      errorElement.style.display = "block";
+    }
+  }
+
+  function hideError(errorId) {
+    const errorElement = document.getElementById(errorId);
+    if (errorElement) {
+      errorElement.style.display = "none";
+    }
+  }
+
+  // Real-time validation
+  document.addEventListener("DOMContentLoaded", function () {
+    // Add real-time validation to all form fields
+    const formFields = document.querySelectorAll("input, select, textarea");
+    formFields.forEach((field) => {
+      field.addEventListener("blur", function () {
+        if (this.hasAttribute("required") && !this.value.trim()) {
+          this.classList.add("field-error");
+          const errorId = this.id + "_error";
+          showError(
+            errorId,
+            this.previousElementSibling.textContent.replace("*", "").trim() +
+              " is required"
+          );
+        } else {
+          this.classList.remove("field-error");
+          const errorId = this.id + "_error";
+          hideError(errorId);
+        }
+      });
+
+      field.addEventListener("input", function () {
+        if (this.value.trim()) {
+          this.classList.remove("field-error");
+          const errorId = this.id + "_error";
+          hideError(errorId);
+        }
+      });
+    });
+
+    // Initialize AI button state
+    updateImageCount();
+
+    // Form submission validation
+    const form = document.querySelector("form");
+    form.addEventListener("submit", function (e) {
+      if (!validateForm()) {
+        e.preventDefault();
+      }
+    });
+  });
+
+  // Toggle disease description section
+  document.querySelectorAll('input[name="has_disease"]').forEach((radio) => {
+    radio.addEventListener("change", function () {
+      const section = document.getElementById("disease_description_section");
+      if (this.value === "yes") {
+        section.style.display = "block";
+      } else {
+        section.style.display = "none";
+      }
+    });
+  });
+  // Toggle insurance ID section
+  document.querySelectorAll('input[name="has_insurance"]').forEach((radio) => {
+    radio.addEventListener("change", function () {
+      const section = document.getElementById("insurance_id_section");
+      if (this.value === "yes") {
+        section.style.display = "block";
+        document
+          .getElementById("insurance_id")
+          .setAttribute("required", "true");
+      } else {
+        section.style.display = "none";
+        document.getElementById("insurance_id").removeAttribute("required");
+      }
+    });
+  });
+
+  // AI Breed Identification
+  async function identifyBreed() {
+    const frontImage = document.getElementById("front_image").files[0];
+    if (!frontImage) {
+      alert("Please upload the front image first for AI identification.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("image", frontImage);
+
+    try {
+      document.getElementById("ai-results").style.display = "block";
+      document.getElementById("ai-content").innerHTML = `
+            <div class="text-center">
+                <div class="spinner-border text-info" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">AI is analyzing the image...</p>
+            </div>
+        `;
+
+      const response = await fetch("/api/identify_breed", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        const confidence = (result.confidence * 100).toFixed(1);
+        let aiContent = `
+                <div class="row">
+                    <div class="col-md-8">
+                        <h5 class="text-success">Identified Breed: ${result.predicted_breed}</h5>
+                        <div class="progress mb-3" style="height: 25px;">
+                            <div class="progress-bar bg-info" style="width: ${confidence}%">
+                                ${confidence}% Confidence
+                            </div>
+                        </div>
+            `;
+
+        if (result.breed_data) {
+          aiContent += `
+                        <p><strong>Origin:</strong> ${
+                          result.breed_data.origin || "Unknown"
+                        }</p>
+                        <p><strong>Category:</strong> ${
+                          result.breed_data.category || "Unknown"
+                        }</p>
+                        <button type="button" class="btn btn-success btn-sm" onclick="applyAIResults(${JSON.stringify(
+                          result
+                        ).replace(/"/g, "&quot;")})">
+                            <i class="fas fa-magic me-1"></i>Apply AI Results
+                        </button>
+                `;
+        }
+
+        aiContent += `
+                    </div>
+                    <div class="col-md-4 text-center">
+                        ${
+                          result.breed_data && result.breed_data.image_url
+                            ? `<img src="${result.breed_data.image_url}" class="img-fluid rounded" style="max-height: 120px;" alt="Reference">
+                             <p class="small text-muted mt-1">Reference Image</p>`
+                            : '<p class="text-muted">No reference image</p>'
+                        }
+                    </div>
+                </div>
+            `;
+
+        document.getElementById("ai-content").innerHTML = aiContent;
+      } else {
+        document.getElementById("ai-content").innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Failed to identify breed: ${result.error}
+                </div>
+            `;
+      }
+    } catch (error) {
+      document.getElementById("ai-content").innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Error occurred during AI identification. Please try again.
+            </div>
+        `;
+    }
+  }
+
+  // Apply AI identification results to form
+  function applyAIResults(result) {
+    if (result.breed_data) {
+      // Set breed
+      document.getElementById("breed_id").value = result.breed_data.id;
+
+      // Apply suggested attributes if available
+      if (result.suggested_attributes) {
+        if (result.suggested_attributes.height) {
+          document.getElementById("height").value =
+            result.suggested_attributes.height;
+        }
+        if (result.suggested_attributes.length) {
+          document.getElementById("length").value =
+            result.suggested_attributes.length;
+        }
+        if (result.suggested_attributes.width) {
+          document.getElementById("width").value =
+            result.suggested_attributes.width;
+        }
+        if (result.suggested_attributes.weight) {
+          document.getElementById("weight").value =
+            result.suggested_attributes.weight;
+        }
+        if (result.suggested_attributes.color) {
+          document.getElementById("color").value =
+            result.suggested_attributes.color;
+        }
+      }
+
+      alert("AI results have been applied to the form!");
+    }
+  }
+</script>
+{% endblock %}

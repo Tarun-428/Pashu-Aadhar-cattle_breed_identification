@@ -1,0 +1,36 @@
+
+<!doctype html>
+<html>
+  <head>
+    <title>Verify OTP</title>
+    <script>
+      function showUsernamePopup(username){
+        if(username){
+          alert("Registration complete. Your username is: " + username);
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <h2>Verify OTP</h2>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul>
+        {% for category, msg in messages %}
+          <li>{{ msg }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    {% if success and username %}
+      <script>showUsernamePopup("{{ username }}");</script>
+      <p>Verification successful. <a href="{{ url_for('auth.login') }}">Click here to login</a></p>
+    {% else %}
+      <form method="post" action="{{ url_for('auth.verify_otp') }}">
+        <label>Enter OTP sent to your mobile</label><br>
+        <input type="text" name="otp" required><br>
+        <button type="submit">Verify</button>
+      </form>
+    {% endif %}
+  </body>
+</html>

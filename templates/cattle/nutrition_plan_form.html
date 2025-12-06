@@ -1,0 +1,319 @@
+{% extends "base.html" %} {% block title %}Create Nutrition Plan - {{
+cattle.name or cattle.cattle_id }}{% endblock %} {% block content %}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <!-- Header -->
+      <div class="text-center mb-4">
+        <h1 class="display-6 fw-bold text-success">
+          <i class="fas fa-utensils me-3"></i>Create Nutrition Plan
+        </h1>
+        <p class="lead text-muted">
+          Generate a customized 7-day nutrition plan for {{ cattle.name or 'your
+          cattle' }}
+        </p>
+      </div>
+
+      <!-- Cattle Info Card -->
+      <div class="card shadow border-0 mb-4">
+        <div class="card-header bg-info text-white">
+          <h5 class="mb-0">
+            <i class="fas fa-cow me-2"></i>Cattle Information
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-3 text-center">
+              {% if cattle.front_image %}
+              <img
+                src="{{ url_for('static', filename='uploads/' + cattle.front_image) }}"
+                class="img-fluid rounded"
+                alt="{{ cattle.name or 'Cattle' }}"
+                style="height: 100px; width: 100px; object-fit: cover"
+              />
+              {% else %}
+              <div
+                class="bg-light rounded d-flex align-items-center justify-content-center"
+                style="height: 100px; width: 100px"
+              >
+                <i class="fas fa-cow text-muted fa-3x"></i>
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-9">
+              <h4 class="text-success">
+                {{ cattle.name or 'Unnamed Cattle' }}
+              </h4>
+              <div class="row">
+                <div class="col-md-6">
+                  <p class="mb-1">
+                    <strong>ID:</strong> {{ cattle.cattle_id }}
+                  </p>
+                  <p class="mb-1">
+                    <strong>Breed:</strong> {{ cattle.breed.name if cattle.breed
+                    else 'Unknown' }}
+                  </p>
+                  {% if cattle.breed and cattle.breed.category %}
+                  <p class="mb-1">
+                    <strong>Category:</strong> {{ cattle.breed.category }}
+                  </p>
+                  {% endif %}
+                </div>
+                <div class="col-md-6">
+                  {% if cattle.weight %}
+                  <p class="mb-1">
+                    <strong>Weight:</strong> {{ cattle.weight }} kg
+                  </p>
+                  {% endif %} {% if cattle.height %}
+                  <p class="mb-1">
+                    <strong>Height:</strong> {{ cattle.height }} cm
+                  </p>
+                  {% endif %} {% if cattle.breed and
+                  cattle.breed.climate_adaptation %}
+                  <p class="mb-1">
+                    <strong>Climate:</strong> {{ cattle.breed.climate_adaptation
+                    }}
+                  </p>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nutrition Plan Form -->
+      <form
+        method="POST"
+        action="{{ url_for('cattle.generate_nutrition_plan', cattle_id=cattle.id) }}"
+      >
+        <div class="card shadow border-0 mb-4">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0">
+              <i class="fas fa-chart-line me-2"></i>Current Performance Metrics
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle me-2"></i>
+              Please provide current daily metrics for your cattle to generate
+              an accurate nutrition plan.
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label for="daily_milk_production" class="form-label">
+                  <i class="fas fa-tint text-primary me-1"></i>Daily Milk
+                  Production (Liters)
+                </label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="daily_milk_production"
+                  name="daily_milk_production"
+                  step="0.1"
+                  min="0"
+                  max="100"
+                  required
+                  placeholder="e.g., 15.5"
+                />
+                <div class="form-text">
+                  Average liters of milk produced per day
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label for="daily_food_intake" class="form-label">
+                  <i class="fas fa-weight text-success me-1"></i>Daily Food
+                  Intake (Kg)
+                </label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="daily_food_intake"
+                  name="daily_food_intake"
+                  step="0.1"
+                  min="1"
+                  max="100"
+                  required
+                  placeholder="e.g., 25.0"
+                />
+                <div class="form-text">Total dry matter intake per day</div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label for="daily_water_consumption" class="form-label">
+                  <i class="fas fa-tint text-info me-1"></i>Daily Water
+                  Consumption (Liters)
+                </label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="daily_water_consumption"
+                  name="daily_water_consumption"
+                  step="0.1"
+                  min="10"
+                  max="200"
+                  required
+                  placeholder="e.g., 80.0"
+                />
+                <div class="form-text">Total water consumption per day</div>
+              </div>
+            </div>
+
+            <!-- Breed-specific recommendations -->
+            {% if cattle.breed %}
+            <div class="alert alert-light border">
+              <h6 class="alert-heading">
+                <i class="fas fa-lightbulb text-warning me-2"></i>
+                {{ cattle.breed.name }} Breed Guidelines
+              </h6>
+              <div class="row">
+                {% if cattle.breed.milk_production %}
+                <div class="col-md-6">
+                  <small class="text-muted">
+                    <strong>Expected Milk Production:</strong> {{
+                    cattle.breed.milk_production }} L/day
+                  </small>
+                </div>
+                {% endif %} {% if cattle.breed.category %}
+                <div class="col-md-6">
+                  <small class="text-muted">
+                    <strong>Purpose:</strong> {{ cattle.breed.category }}
+                  </small>
+                </div>
+                {% endif %} {% if cattle.breed.climate_adaptation %}
+                <div class="col-12">
+                  <small class="text-muted">
+                    <strong>Climate Adaptation:</strong> {{
+                    cattle.breed.climate_adaptation }}
+                  </small>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Additional Information -->
+        <div class="card shadow border-0 mb-4">
+          <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">
+              <i class="fas fa-exclamation-circle me-2"></i>Important Notes
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <h6 class="text-muted">What will be generated:</h6>
+                <ul class="list-unstyled">
+                  <li>
+                    <i class="fas fa-check text-success me-2"></i>7-day feeding
+                    schedule
+                  </li>
+                  <li>
+                    <i class="fas fa-check text-success me-2"></i>Daily feed
+                    quantities
+                  </li>
+                  <li>
+                    <i class="fas fa-check text-success me-2"></i>Water intake
+                    recommendations
+                  </li>
+                  <li>
+                    <i class="fas fa-check text-success me-2"></i>Supplement
+                    suggestions
+                  </li>
+                </ul>
+              </div>
+              <div class="col-md-6">
+                <h6 class="text-muted">Customized based on:</h6>
+                <ul class="list-unstyled">
+                  <li>
+                    <i class="fas fa-check text-info me-2"></i>Your cattle's
+                    breed characteristics
+                  </li>
+                  <li>
+                    <i class="fas fa-check text-info me-2"></i>Current
+                    performance metrics
+                  </li>
+                  <li>
+                    <i class="fas fa-check text-info me-2"></i>Climate
+                    adaptation needs
+                  </li>
+                  <li>
+                    <i class="fas fa-check text-info me-2"></i>Industry best
+                    practices
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Section -->
+        <div class="text-center">
+          <button type="submit" class="btn btn-success btn-lg me-3">
+            <i class="fas fa-magic me-2"></i>Generate Nutrition Plan
+          </button>
+
+          <a
+            href="{{ url_for('cattle.cattle_details', cattle_id=cattle.id) }}"
+            class="btn btn-outline-secondary btn-lg"
+          >
+            <i class="fas fa-arrow-left me-2"></i>Back to Details
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      // Auto-suggest values based on breed characteristics
+      {% if cattle.breed %}
+      const breedCategory = "{{ cattle.breed.category }}";
+      const milkProduction = {{ cattle.breed.milk_production or 0 }};
+      const weight = {{ cattle.weight or cattle.breed.average_weight_female or 400 }};
+
+      // Suggest milk production based on breed
+      if (milkProduction > 0) {
+          document.getElementById('daily_milk_production').placeholder = `Suggested: ${milkProduction} L/day`;
+      }
+
+      // Suggest food intake (typically 2-4% of body weight)
+      const suggestedFood = Math.round((weight * 0.03) * 10) / 10;
+      document.getElementById('daily_food_intake').placeholder = `Suggested: ${suggestedFood} kg/day`;
+
+      // Suggest water intake (typically 3-4 L per kg of dry matter + 4-5 L per L of milk)
+      const suggestedWater = Math.round((suggestedFood * 3.5 + milkProduction * 4.5) * 10) / 10;
+      document.getElementById('daily_water_consumption').placeholder = `Suggested: ${suggestedWater} L/day`;
+      {% endif %}
+
+      // Form validation
+      const form = document.querySelector('form');
+      form.addEventListener('submit', function(e) {
+          const milk = parseFloat(document.getElementById('daily_milk_production').value);
+          const food = parseFloat(document.getElementById('daily_food_intake').value);
+          const water = parseFloat(document.getElementById('daily_water_consumption').value);
+
+          // Basic validation
+          if (milk > 50) {
+              if (!confirm('Daily milk production seems very high (>50L). Are you sure this is correct?')) {
+                  e.preventDefault();
+                  return;
+              }
+          }
+
+          if (water < food * 2) {
+              if (!confirm('Water consumption seems low compared to food intake. Cattle typically need 2-4L of water per kg of feed. Continue?')) {
+                  e.preventDefault();
+                  return;
+              }
+          }
+      });
+  });
+</script>
+{% endblock %}

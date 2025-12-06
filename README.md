@@ -47,17 +47,7 @@ The system uses a **deep learning model (ResNet50)** for breed identification an
 
 - The breed classification model is based on **ResNet50**
 - The model is **trained on cattle breed images**
-- ⚠️ **Model file is not uploaded to GitHub** because its size is very large
-
-### 📌 Need the trained model?
-
-If you require the trained ResNet50 model:
-- Please **raise a Pull Request**, or  
-- **Contact me via email**
-
-I will share the model separately.
-
----
+- resnet50_model.h5
 
 ## ✅ Use Case
 
@@ -75,9 +65,5 @@ This project is developed for **academic and educational purposes**.
 
 ---
 
-## 👨‍💻 Author
 
-**Tarun**  
-Computer Science Engineering  
-mr.tarunpatidar824@gmail.com
 

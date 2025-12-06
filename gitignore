@@ -87,3 +87,4 @@ resnet50_model.h5
 Thumbs.db
 
 resnet50_model.h5
+.env

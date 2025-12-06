@@ -1,10 +1,10 @@
 import os
 from twilio.rest import Client
+from dotenv import load_dotenv
 
-account_sid = "AC4be6a0fc5f7eb69e4d436e3fa65bebc7"
-auth_token = "b0b95f8925227b22975976df27727250"
-verify_sid = "VA7969e6648ebd03905a90207650a320c0"
-
+account_sid = os.getenv("TWILIO_ACCOUNT_SID")
+auth_token = os.getenv("TWILIO_ACC_AUTH_TOKEN")
+verify_sid = os.getenv("TWILIO_ACC_VERIFY_SID")
 client = Client(account_sid, auth_token)
 
 def send_otp(mobile):

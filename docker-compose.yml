@@ -2,10 +2,7 @@ version: '3.8'
 
 services:
   web:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: cattle_breed_app:latest
+    image: tarunpatidar428/cattle_breed_app:latest
     container_name: cattle_breed_app
     ports:
       - "5000:5000"

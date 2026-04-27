@@ -57,9 +57,6 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 with app.app_context():
-    # Import models to ensure tables are created
+    # Import models and routes
     import models
-    db.create_all()
-    
-    # Import and register routes
     import routes

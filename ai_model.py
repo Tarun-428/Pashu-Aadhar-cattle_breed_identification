@@ -88,9 +88,9 @@ class CattleBreedClassifier:
 
 
 # ✅ Path to your custom ResNet50 model
-MODEL_PATH = 'resnet50_model.h5'
+MODEL_PATH = os.environ.get('MODEL_PATH', 'resnet50_model.h5')
 
-# ✅ Global classifier instance
+# ✅ Global classifier instance (reads path from env)
 classifier = CattleBreedClassifier(MODEL_PATH)
 
 def predict_breed(image_filename):

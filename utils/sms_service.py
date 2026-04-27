@@ -2,16 +2,15 @@ import os
 from twilio.rest import Client
 from dotenv import load_dotenv
 
+load_dotenv()
 account_sid = os.getenv("TWILIO_ACCOUNT_SID")
-auth_token = os.getenv("TWILIO_ACC_AUTH_TOKEN")
-verify_sid = os.getenv("TWILIO_ACC_VERIFY_SID")
+auth_token = os.getenv("TWILIO_AUTH_TOKEN")
+verify_sid = os.getenv("TWILIO_VERIFY_SERVICE_SID")
 client = Client(account_sid, auth_token)
 
 def send_otp(mobile):
     """Send OTP using Twilio Verify API"""
-    verification = client.verify \
-        .v2 \
-        .services(verify_sid) \
+    verification = client.verify.v2.services(verify_sid) \
         .verifications \
         .create(to=f'+91{mobile}', channel='sms')
     print(verification.status)
